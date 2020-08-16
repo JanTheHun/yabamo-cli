@@ -2,11 +2,30 @@
   "name": "yabamo-cli",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "scripts": {},
+  "keywords": [
+    "typescript",
+    "yabamo-core",
+    "cli"
+  ],
+  "author": "Janos Pomucz",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "yabamo-cli": "./dist/index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "preferGlobal": true,
+  "dependencies": {
+    "@jbp/yabamo-core": "^1.0.4",
+    "commander": "^6.0.0",
+    "dotenv": "^8.2.0",
+    "typescript": "^3.9.7",
+    "yargs": "15.4.1"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/node": "^14.0.27",
+    "@types/yargs": "15.0.5"
+  }
 }
