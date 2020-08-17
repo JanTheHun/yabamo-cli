@@ -1,11 +1,12 @@
 {
-  "name": "yabamo-cli",
+  "name": "@jbp/yabamo-cli",
   "version": "0.0.1",
-  "description": "",
+  "description": "CLI wrapper for yabamo-core package",
   "scripts": {},
   "keywords": [
     "typescript",
     "yabamo-core",
+    "@jbp/yabamo-core",
     "cli"
   ],
   "author": "Janos Pomucz",
