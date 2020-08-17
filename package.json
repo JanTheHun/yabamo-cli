@@ -18,8 +18,7 @@
   "preferGlobal": true,
   "dependencies": {
     "@jbp/yabamo-core": "^1.0.4",
-    "commander": "^6.0.0",
-    "dotenv": "^8.2.0",
+    "pm2": "^4.4.1",
     "typescript": "^3.9.7",
     "yargs": "15.4.1"
   },

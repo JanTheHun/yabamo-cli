@@ -1,6 +1,6 @@
 {
-    "engineName": "Engine200",
-    "port": "5000",
+    "engineName": "Engine201",
+    "port": "5001",
     "routes": [
         {
             "path": "/",
@@ -12,7 +12,8 @@
                 },
                 "error": "ERROR!!",
                 "array": [1,2,3]
-            }
+            },
+            "currentResponse": "error"
         },
         {
             "path": "/a",
@@ -20,7 +21,7 @@
                 "default": "jej++",
                 "other": "huha!!"
             },
-            "currentResponse": "other"
+            "currentResponse": "default"
         },
         {
             "path": "/b",
