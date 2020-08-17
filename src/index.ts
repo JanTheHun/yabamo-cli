@@ -4,7 +4,7 @@ const pm2 = require('pm2')
 import * as yargs from 'yargs'
 yargs.parse()
 
-const argv = yargs
+const argv: any = yargs
     .command('start <config>', 'start engine with config file', startCommandHandler)
     .usage('Usage: $0 <command> [options]')
     .help('h')
@@ -19,7 +19,7 @@ const argv = yargs
 
 async function listCommandHandler() {
     try {
-        let list = await getPm2ProcessList()
+        let list: any[] = await getPm2ProcessList()
         console.log('PM2:', list)
     } catch(err) {
         console.log('error getting list:', err)
@@ -27,10 +27,10 @@ async function listCommandHandler() {
 }
     
 function startCommandHandler(data: any) {
-    let config = data.argv['_'][1]
+    let config: any = data.argv['_'][1]
     if (config) {
         console.log(`using config file: ${config}`)
-        const configFileContent = fs.readFileSync(process.cwd().concat(`/${config}`), 'utf8')
+        const configFileContent: string = fs.readFileSync(process.cwd().concat(`/${config}`), 'utf8')
         try {
             let config: any = JSON.parse(configFileContent)
             startPm2Process(config)
@@ -87,7 +87,7 @@ async function startPm2Process(config: any) {
     })
 }
 
-function getPm2ProcessList() {
+function getPm2ProcessList(): Promise<any[]> {
     return new Promise((resolve, reject) => {
         pm2.connect((err: any) => {
             if (err) {
