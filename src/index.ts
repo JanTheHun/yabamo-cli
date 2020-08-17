@@ -143,3 +143,5 @@ function stopPm2Process(engineName: string): Promise<any[]> {
         })
     })
 }
+
+/* -*- ts -*- */
