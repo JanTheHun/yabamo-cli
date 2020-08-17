@@ -18,14 +18,14 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "@jbp/yabamo-core": "^1.0.4",
+    "@jbp/yabamo-core": "^1.0.6",
     "pm2": "^4.4.1",
     "typescript": "^3.9.7",
     "yargs": "15.4.1"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
-    "@types/node": "^14.0.27",
+    "@types/node": "^14.6.0",
     "@types/yargs": "15.0.5"
   }
 }
