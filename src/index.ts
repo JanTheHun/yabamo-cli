@@ -14,9 +14,6 @@ const argv: any = yargs
     .argv
 
 
-
-
-
 async function listCommandHandler() {
     try {
         let list: any[] = await getPm2ProcessList()
