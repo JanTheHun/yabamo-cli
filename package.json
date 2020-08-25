@@ -21,11 +21,10 @@
     "@jbp/yabamo-core": "^1.0.7",
     "pm2": "^4.4.1",
     "typescript": "^3.9.7",
-    "yargs": "15.4.1"
+    "arg": "4.1.3"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
-    "@types/node": "^14.6.0",
-    "@types/yargs": "15.0.5"
+    "@types/node": "^14.6.0"
   }
 }

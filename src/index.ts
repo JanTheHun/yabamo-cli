@@ -1,38 +1,117 @@
 #!/usr/bin/env node
 import fs from 'fs'
 const pm2 = require('pm2')
-import * as yargs from 'yargs'
-yargs.parse()
+const arg = require('arg')
+let args: any
 
-const argv: any = yargs
-    .command('start <config>', 'start engine with config file', startCommandHandler)
-    .usage('Usage: $0 <command> [options]')
-    .help('h')
-    .command('stop <name>', 'stop engine with given name', stopCommandHandler)
-    .command('stopall', 'stop all engine', stopAllCommandHandler)
-    .command('list', 'list of running engines', listCommandHandler)
-    .argv
+main()
 
+async function main() {
+    try 
+    {
+        args = arg({
+            // Types
+            '--help': Boolean,
+            '--config': String,
+            '--engine': String,
+         
+            // Aliases
+            '-h': '--help',
+            '-c': '--config',
+            '-e': '--engine'
+                                      //     result is stored in --name
+        })
+
+        let command = getCommand(args)
+        if (command === null ) {
+            console.log('missing command')
+            printHelp()
+        } else if (command === 'start') {
+            let configName = args['--config']
+            let engineName = args['--engine']
+            if (configName) {
+                startCommandHandler(configName, engineName)
+            } else {
+                console.log('config file required')
+                printHelp()
+            }
+        } else if (command === 'stop') {
+            let engineName = args['--engine']
+            if (engineName) {
+                stopCommandHandler(engineName)
+            } else {
+                console.log('engine name required')
+                printHelp()
+            }
+        } else if (command === 'stopall') {
+            stopAllCommandHandler()
+        } else if (command === 'list') {
+            listCommandHandler()
+        } else if (command === 'changeresponse') {
+            
+        }
+    } catch (err) {
+        console.log(err.message)
+        printHelp()
+    }
+}
+
+
+function getCommand(args: any) {
+    const commands = ['list', 'start', 'stop', 'stopall', 'changeresponse']
+    let parsedCommand = args && args['_'] && args['_'].length ? args['_'].filter( (a: string) => {return commands.indexOf(a.toLowerCase()) !== -1}) : null
+    if (parsedCommand && parsedCommand.length === 1) {
+        return parsedCommand[0]
+    } else {
+        return null
+    }
+}
+
+function printHelp() {
+    console.log('\nUsage:\nyabamo-client <command> [options]')
+
+    console.log('\nCommands:')
+    console.log('\n\tstart\t\tstart an engine from config file (provided in --config)')
+    console.log('\n\tstop\t\tstop an engine with given name (provided in --engine)')
+    console.log('\n\tlist\t\tlist of running engines')
+
+    console.log('\nOptions:')
+    console.log('\n\t--config, -c\tconfig file for the API')
+    console.log('\n\t--engine, -e\tAPI engine name')
+
+    console.log('\nExamples:')
+    console.log('\nyabamo-cli start -c config.json\n\tstart API engine from file "config.json"')
+    console.log('\nyabamo-cli start -c config.json -e TestEngine\n\tstart API engine from file "config.json" with the name "TestEngine"')
+    console.log('\nyabamo-cli stop -e TestEngine\n\tstop API engine with the name "TestEngine"')
+    console.log('\nyabamo-cli list\n\tlist of running engines')
+
+    console.log('\n')
+    process.exit(-1)
+}
 
 async function listCommandHandler() {
     try {
         let list: any[] = await getPm2ProcessList()
-        console.log('PM2:', list)
+        if  (list && list.length) {
+            console.log(list)
+        } else {
+            console.log('no API engines running')
+        }
     } catch(err) {
         console.log('error getting list:', err)
     }
 }
     
-function startCommandHandler(data: any) {
-    let config: any = data.argv['_'][1]
-    if (config) {
-        console.log(`using config file: ${config}`)
-        const configFileContent: string = fs.readFileSync(process.cwd().concat(`/${config}`), 'utf8')
+async function startCommandHandler(configName: string, engineName?: string) {
+    if (configName) {
+        console.log(`using config file: ${configName}`)
+        const configFileContent: string = fs.readFileSync(process.cwd().concat(`/${configName}`), 'utf8')
         try {
             let config: any = JSON.parse(configFileContent)
-            startPm2Process(config)
+            let startResult: any = await startPm2Process(config, engineName)
+            console.log(startResult)
         } catch (err) {
-            console.log('error parsing config file:', err)
+            console.log('error starting API engine:', err)
             process.exit(-1)
         }
     } else {
@@ -42,45 +121,94 @@ function startCommandHandler(data: any) {
 }
 
 function stopAllCommandHandler() {
-    console.log('stopall')
+    console.log('TODO: stopall')
 }
 
-async function stopCommandHandler(data: any) {
-    let engineName = data.argv['_'][1]
+
+async function stopCommandHandler(engineName: any) {
     if (engineName) {
-        console.log(`stopping: ${engineName}`)
         try {
-            let desc: any = await stopPm2Process(engineName)
-            console.log('stop done')
+            let stopResult: any = await stopPm2Process(engineName)
+            console.log(`${engineName} stopped`)
         } catch (err) {
             console.log('error stopping:', err)
         }
     } else {
         console.log('no engine name')
     }
-
 }
 
-async function startPm2Process(config: any) {
-    pm2.connect((err: any) => {
-        if (err) {
-            console.log('error connecting to pm2:', err)
-        } else {
-            pm2.start({
-                name: config.engineName,
-                script: './dist/runner.js',
-                args: [JSON.stringify(config)],
-                autorestart: false
-            }, (err: any, apps: any) => {
-                if (err) {
-                    console.log('error starting:', err)
-                }
-                console.log(apps[0].pm2_env.name)
-                console.log(apps[0].process)
-                console.log(apps[0].pid)
-                pm2.disconnect()
-            })
+
+async function checkIfEngineIsRunning(engineName: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+        pm2.connect((err: any) => {
+            if (err) {
+                console.log('error connecting to pm2:', err)
+            } else {
+                pm2.list((err: any, list: any) => {
+                    if (err) {
+                        reject(`list error: ${err}`)
+                    }
+                    let filtered = list.find((l: any) => {
+                        return l.name === engineName
+                    })
+                    pm2.disconnect()
+                    resolve(filtered)
+                })
+            }
+        })
+    })
+}
+
+
+async function startPm2Process(config: any, _engineName?: string) {
+    return new Promise((resolve, reject) => {
+        let engineName = _engineName ? _engineName : config.engineName
+        if (!engineName) {
+            reject('no engine name!')
         }
+        checkIfEngineIsRunning(engineName)
+        .then( async (res: any) => {
+            if (res && res.name === engineName) {
+                console.log(`${engineName} already running, restarting`)
+                try {
+                    await stopPm2Process(engineName)
+                } catch (err) {
+                    reject(err)
+                }
+            }
+            pm2.connect((err: any) => {
+                if (err) {
+                    let errorMsg = `error connecting to pm2: ${err}`
+                    console.log(errorMsg)
+                    reject(errorMsg)
+                } else {
+                    pm2.start({
+                        name: engineName,
+                        script: './dist/runner.js',
+                        args: [JSON.stringify(config)],
+                        autorestart: false
+                    }, (err: any, apps: any) => {
+                        if (err) {
+                            let errorMsg = `error starting: ${err}`
+                            console.log(errorMsg)
+                            reject(errorMsg)
+                        }
+                        let result = `${apps[0].pm2_env.name} started`
+                        // console.log(result)
+                        // console.log(apps[0].process)
+                        // console.log(apps[0].pid)
+                        pm2.disconnect()
+                        resolve(result)
+                    })
+                }
+            })
+        })
+        .catch( (err: any) => {
+            let errorMsg = `error connecting to pm2: ${err}`
+            console.log(errorMsg)
+            reject(errorMsg)
+        })
     })
 }
 
@@ -110,6 +238,7 @@ function getPm2ProcessList(): Promise<any[]> {
 }
 
 function stopPm2Process(engineName: string): Promise<any[]> {
+    console.log(`stopping ${engineName}`)
     return new Promise((resolve, reject) => {
         pm2.connect((err: any) => {
             if (err) {
