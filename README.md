@@ -7,7 +7,7 @@ CLI wrapper for the [@jbp/yabamo-core](https://www.npmjs.com/package/@jbp/yabamo
 
 ## Usage
 
-### Start an API engine
+### Starting API engine
 ```$ yabamo-cli start --config config.json```
 
 where ```config.json``` is a ```.json``` file describing accessible paths and possible responses for your fake backend. A minimal config file would look something like this:

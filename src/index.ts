@@ -93,7 +93,10 @@ async function listCommandHandler() {
     try {
         let list: any[] = await getPm2ProcessList()
         if  (list && list.length) {
-            console.log(list)
+            list.forEach((e:any) => {
+                console.log('running API engines:\n')
+                console.log(`\tpid:${e.pid}\t\tname:${e.name}\t\tstatus:${e.status}\n`)
+            })
         } else {
             console.log('no API engines running')
         }
@@ -104,12 +107,12 @@ async function listCommandHandler() {
     
 async function startCommandHandler(configName: string, engineName?: string) {
     if (configName) {
-        console.log(`using config file: ${configName}`)
+        console.log(`\nusing config file: ${configName}`)
         const configFileContent: string = fs.readFileSync(process.cwd().concat(`/${configName}`), 'utf8')
         try {
             let config: any = JSON.parse(configFileContent)
             let startResult: any = await startPm2Process(config, engineName)
-            console.log(startResult)
+            console.log(`\n${startResult}\n`)
         } catch (err) {
             console.log('error starting API engine:', err)
             process.exit(-1)
@@ -129,7 +132,7 @@ async function stopCommandHandler(engineName: any) {
     if (engineName) {
         try {
             let stopResult: any = await stopPm2Process(engineName)
-            console.log(`${engineName} stopped`)
+            console.log(`\n${engineName} stopped\n`)
         } catch (err) {
             console.log('error stopping:', err)
         }
@@ -222,6 +225,7 @@ function getPm2ProcessList(): Promise<any[]> {
                     if (err) {
                         reject(`list error: ${err}`)
                     }
+                    // console.log(list)
                     let filtered = list.map((l: any) => {
                         return {
                             pid: l.pid,
@@ -238,7 +242,7 @@ function getPm2ProcessList(): Promise<any[]> {
 }
 
 function stopPm2Process(engineName: string): Promise<any[]> {
-    console.log(`stopping ${engineName}`)
+    // console.log(`stopping ${engineName}`)
     return new Promise((resolve, reject) => {
         pm2.connect((err: any) => {
             if (err) {
