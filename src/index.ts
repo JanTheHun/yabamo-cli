@@ -188,7 +188,8 @@ async function startPm2Process(config: any, _engineName?: string) {
                 } else {
                     pm2.start({
                         name: engineName,
-                        script: './dist/runner.js',
+                        // script: './dist/runner.js',
+                        script: __filename.replace('index.js', 'runner.js'),
                         args: [JSON.stringify(config)],
                         autorestart: false
                     }, (err: any, apps: any) => {
