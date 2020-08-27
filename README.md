@@ -51,3 +51,19 @@ It overrides the name provided in config and if none exists, the CLI will exit w
 ### Routes
 * path: required
 * method: optional, defaults to ```GET```
+* responses: required, a key=>value map where ```key``` is the name of the response, ```value``` is the response itself.
+* currentResponse: optional, could be the name of one of the responses.
+
+
+#### Method
+
+Possible values: ```GET```, ```POST```, ```PUT```, ```DELETE``` and ```OPTIONS```
+
+#### Responses
+
+Every response is named. If there is only one response defined, it will be used. If there is more than one but no other indication of which one to use it will default to the first one. If there is a response named ```default```, it will have preference over other responses. If there is a ```currentResponse``` defined, it will have preference over everything else.
+
+If the response is a ```string``` or a ```number``` it will be stringified and sent with ```res.send()```. If it is an ```Object``` or an ```Array``` it will be sent with ```res.json()```.
+
+## Comming features
+* *changeResponse* command to manipulate ```currentResponse``` through command line
