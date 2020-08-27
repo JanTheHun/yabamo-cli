@@ -30,6 +30,7 @@ async function main() {
             let configName = args['--config']
             let engineName = args['--engine']
             if (configName) {
+                console.log(`\nusing config file: ${configName}`)
                 startCommandHandler(configName, engineName)
             } else {
                 console.log('config file required')
@@ -106,19 +107,13 @@ async function listCommandHandler() {
 }
     
 async function startCommandHandler(configName: string, engineName?: string) {
-    if (configName) {
-        console.log(`\nusing config file: ${configName}`)
+    try {
         const configFileContent: string = fs.readFileSync(process.cwd().concat(`/${configName}`), 'utf8')
-        try {
-            let config: any = JSON.parse(configFileContent)
-            let startResult: any = await startPm2Process(config, engineName)
-            console.log(`\n${startResult}\n`)
-        } catch (err) {
-            console.log('error starting API engine:', err)
-            process.exit(-1)
-        }
-    } else {
-        console.log('no config, exiting')
+        let config: any = JSON.parse(configFileContent)
+        let startResult: any = await startPm2Process(config, engineName)
+        console.log(`\n${startResult}\n`)
+    } catch (err) {
+        console.log('error starting API engine:', err)
         process.exit(-1)
     }
 }

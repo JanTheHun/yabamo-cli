@@ -40,3 +40,14 @@ It overrides the name provided in config and if none exists, the CLI will exit w
 ### List running engines
 
 ```$ yabamo-core list``` will print a list of running API engines.
+
+## Configuration
+
+* engineName: optional, you can provide a name with ```--engine``` (```-e```) option. If you fail to provide the name of the API engine either way, the CLI will exit with error.
+* port: required, the port number your API will use.
+* routes: required, an ```Array``` of routes.
+* fallback: optional, this is the response your API will use if no route has been found (your ```404``` response if you will).
+
+### Routes
+* path: required
+* method: optional, defaults to ```GET```
