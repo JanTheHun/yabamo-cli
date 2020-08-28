@@ -14,11 +14,15 @@ async function main() {
             '--help': Boolean,
             '--config': String,
             '--engine': String,
+            '--path': String,
+            '--method': String,
          
             // Aliases
             '-h': '--help',
             '-c': '--config',
-            '-e': '--engine'
+            '-e': '--engine',
+            '-p': '--path',
+            '-m': '--method',
                                       //     result is stored in --name
         })
 
@@ -50,6 +54,12 @@ async function main() {
             listCommandHandler()
         } else if (command === 'changeresponse') {
             
+        } else if (command === 'send') {
+            let engineName = args['--engine']
+            let path = args['--path']
+            let method = args['--method']
+
+            sendMessageToPm2Process(engineName, method, path)
         }
     } catch (err) {
         console.log(err.message)
@@ -59,7 +69,7 @@ async function main() {
 
 
 function getCommand(args: any) {
-    const commands = ['list', 'start', 'stop', 'stopall', 'changeresponse']
+    const commands = ['list', 'start', 'stop', 'stopall', 'changeresponse', 'send']
     let parsedCommand = args && args['_'] && args['_'].length ? args['_'].filter( (a: string) => {return commands.indexOf(a.toLowerCase()) !== -1}) : null
     if (parsedCommand && parsedCommand.length === 1) {
         return parsedCommand[0]
@@ -157,6 +167,58 @@ async function checkIfEngineIsRunning(engineName: string): Promise<any> {
         })
     })
 }
+
+
+async function sendMessageToPm2Process(engineName: string, method: string, path: string): Promise<any> {
+    try {
+        let engine = await checkIfEngineIsRunning(engineName)
+        console.log(engine.pm_id)
+        pm2.connect((err: any) => {
+            if (err) {
+                console.log('error connecting to pm2:', err)
+            } else {
+                let dataDTO: any = {
+                    data: {
+                        command: 'toggleDebug',
+                        path: path,
+                        method: method
+                    },
+                    topic: 'communication'
+                }
+                pm2.sendDataToProcessId(engine.pm_id, dataDTO, (err: any, res: any) => {
+                    if (err) {
+                        throw(`list error: ${err}`)
+                    }
+                    pm2.disconnect()
+                    console.log('RES:', res)
+                })
+            }
+        })
+    } catch (err) {
+        console.log('error checkIfEngineIsRunning:', err)
+    }
+}
+
+// async function sendMessageToPm2Process() {
+//     return new Promise((resolve, reject) => {
+//         pm2.connect((err: any) => {
+//             if (err) {
+//                 console.log('error connecting to pm2:', err)
+//             } else {
+//                 let dataDTO: any = {
+
+//                 }
+//                 pm2.sendDataToProcessId(dataDTO, (err: any, res: any) => {
+//                     if (err) {
+//                         reject(`list error: ${err}`)
+//                     }
+//                     pm2.disconnect()
+//                     resolve(res)
+//                 })
+//             }
+//         })
+//     })
+// }
 
 
 async function startPm2Process(config: any, _engineName?: string) {
