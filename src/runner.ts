@@ -1,13 +1,21 @@
 import { ServerInstance } from '@jbp/yabamo-core'
-const config = JSON.parse(process.argv[2])
-if (config) {
-    run()
-} else {
-    process.exit(-1)
-}
+import * as fs from 'fs'
 async function run() {
-    const server = new ServerInstance()
     try {
+        process.on('message', function(data: any) {
+            try {
+                let parsedData = JSON.stringify(data)
+                fs.writeFileSync(__dirname.concat('/log11'), parsedData)
+                // server.toggleDebugMode(data.data.method, data.data.path)
+            } catch (err) {
+                fs.writeFileSync(__dirname.concat('/log11'), err)
+            }
+        })
+        const config = JSON.parse(process.argv[2])
+        if (!config) {
+            process.exit(-1)
+        }
+        const server = new ServerInstance()
         await server.checkConfig(config)
         await server.create(config)
         await server.start()
@@ -16,3 +24,4 @@ async function run() {
         process.exit(-1)
     }
 }
+run()
