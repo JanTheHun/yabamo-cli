@@ -35,7 +35,7 @@ It overrides the name provided in config and if none exists, the CLI will exit w
 
 ### Stopping engine
 
-```$ yabamo-core stop --engine testAPI``` will stop the API engine ```testAPI``` (if running).
+```$ yabamo-core stop --engine testAPI``` will stop the API engine named ```testAPI``` (if running).
 
 ### List running engines
 
@@ -43,7 +43,7 @@ It overrides the name provided in config and if none exists, the CLI will exit w
 
 ## Configuration
 
-* engineName: optional, you can provide a name with ```--engine``` (```-e```) option. If you fail to provide the name of the API engine either way, the CLI will exit with error.
+* engineName: optional, you can provide a name on start with ```--engine``` (or ```-e```) option. If you fail to provide the name of the API engine either way, the CLI will exit with error.
 * port: required, the port number your API will use.
 * routes: required, an ```Array``` of routes.
 * fallback: optional, this is the response your API will use if no route has been found (your ```404``` response if you will).
