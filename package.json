@@ -1,6 +1,6 @@
 {
   "name": "@jbp/yabamo-cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "CLI wrapper for yabamo-core package",
   "scripts": {},
   "keywords": [
@@ -18,7 +18,7 @@
   },
   "preferGlobal": true,
   "dependencies": {
-    "@jbp/yabamo-core": "1.0.7",
+    "@jbp/yabamo-core": "1.2.0",
     "arg": "4.1.3",
     "pm2": "^4.4.1",
     "typescript": "^3.9.7"
