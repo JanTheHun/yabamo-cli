@@ -1,21 +1,31 @@
 import { ServerInstance } from '@jbp/yabamo-core'
-import * as fs from 'fs'
+
+let server: ServerInstance
+
+attachEventListeners()
+run()
+
+function attachEventListeners() {
+    process.on('message', function(_data: any) {
+        if (server) {
+            let data = _data.data || {}
+            if (data.command && data.command === 'debug') {
+                server.toggleDebugMode(data.method, data.path)
+            } else if (data.command && data.command === 'responsechange') {
+                server.changeResponse(data.method, data.path, data.response)
+            }
+        }
+    })
+}
+
 async function run() {
     try {
-        process.on('message', function(data: any) {
-            try {
-                let parsedData = JSON.stringify(data)
-                fs.writeFileSync(__dirname.concat('/log11'), parsedData)
-                // server.toggleDebugMode(data.data.method, data.data.path)
-            } catch (err) {
-                fs.writeFileSync(__dirname.concat('/log11'), err)
-            }
-        })
-        const config = JSON.parse(process.argv[2])
+        server = new ServerInstance()
+        const args = JSON.parse(process.argv[2])
+        const { adminPortNumber, config } = args
         if (!config) {
             process.exit(-1)
         }
-        const server = new ServerInstance()
         await server.checkConfig(config)
         await server.create(config)
         await server.start()
@@ -24,4 +34,3 @@ async function run() {
         process.exit(-1)
     }
 }
-run()
